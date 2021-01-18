@@ -1,28 +1,40 @@
 <?php
-    $showAlert = false;
-    $showError =false;
-    if($_SERVER["REQUEST_METHOD"] == "POST"){
+        $showAlert = false;
+        $showError =false;
+        if($_SERVER["REQUEST_METHOD"] == "POST"){
 
-    include "partials/_dbconnect.php";
-    $username = $_POST["username"];
-    $password = $_POST["password"];
-    $cpassword = $_POST["cpassword"];
+        include "partials/_dbconnect.php";
+        $username = $_POST["username"];
+        $password = $_POST["password"];
+        $cpassword = $_POST["cpassword"];
 
-    $exists = false;
-    if(($password == $cpassword) && $exists==false){
-        $sql = "INSERT INTO `users` (`username`, `password`, `dt`) VALUES ('$username', '$password', current_timestamp())";
+        // $exist = false;
 
-        $result = mysqli_query($conn, $sql);
-        if($result){
-            $showAlert = true;
+        // check whether this username exits
+        $existSql = "SELECT * FROM `users` WHERE username = '$username'";
+        $result = mysqli_query($conn, $existSql);
+        $numExistRows = mysqli_num_rows($result);
+        if($numExistRows >0){
+            // $exist = true;
+            $showError = "Username Already Exits";
         }
+        else{
+            // $exist = false;
+        if(($password == $cpassword)){
+            $hash = password_hash($password, PASSWORD_DEFAULT);
+            $sql = "INSERT INTO `users` (`username`, `password`, `dt`) VALUES ('$username', '$hash', current_timestamp())";
 
-    }
-    else{
-        $showError = "Password do not match";
-    }
+            $result = mysqli_query($conn, $sql);
+            if($result){
+                $showAlert = true;
+            }
 
-}
+        }
+        else{
+            $showError = "Password do not match";
+            }
+        }
+    }
 
 ?>
 
@@ -33,10 +45,10 @@
   <head>
     <!-- Required meta tags -->
     <meta charset="utf-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1">
+     <meta name="viewport" content="width=device-width, initial-scale=1">
 
     <!-- Bootstrap CSS -->
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
+     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.0.0-beta1/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-giJF6kkoqNQ00vy+HMDP7azOuL0xtbfIcaT9wjKHr8RbDVddVHyTfAAsrekwKmP1" crossorigin="anonymous">
 
     <title>Signup</title>
   </head>
@@ -63,16 +75,16 @@
      <form action="signup.php" method="post">
         <div class="form-group">
             <label for="username">Username</label>
-            <input type="text" class="form-control" id="username" name="username" aria-describedby="emailHelp">
+            <input type="text" maxlength="11" class="form-control" id="username" name="username" aria-describedby="emailHelp">
             
         </div>
         <div class="form-group my-4">
             <label for="password">Password</label>
-            <input type="password" class="form-control" id="password" name="password">
+            <input type="password" maxlength="23" class="form-control" id="password" name="password">
         </div>
         <div class="form-group my-4">
             <label for="cpassword">Confirm Password</label>
-            <input type="password" class="form-control" id="cpassword" name="cpassword">
+            <input type="password" maxlength="23" class="form-control" id="cpassword" name="cpassword">
             <small id="emailHelp" class="form-text text-muted">Make sure to type the same password</small>
         </div>
          
